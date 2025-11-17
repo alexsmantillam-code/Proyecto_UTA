@@ -140,59 +140,14 @@ def mostrar_inicio():
     # Frase inspiradora
     st.info("💡 “El conocimiento se ha convertido en el activo más valioso de la economía actual.” — Stewart, 1997")
 
+
 def mostrar_indicadores():
     st.title("📊 Indicadores calculados")
     
-    # CSS para estilizar las cajas de texto, etiquetas no editables, selectbox y botón (paleta corporativa)
+    # CSS mejorado
     st.markdown("""
     <style>
         div[data-testid="stNumberInput"] input {
-            font-size: 20px !important;
-            padding: 10px !important;
-            border: 2px solid #1D4ED8 !important; /* azul-600 */
-            border-radius: 8px !important;
-            background-color: #ffffff !important;
-            color: #111827 !important; /* gris-900 */
-            width: 100% !important;
-        }
-        div[data-testid="stNumberInput"] label {
-            font-size: 20px !important;
-            color: #111827 !important;
-            font-weight: bold !important;
-            text-align: center !important;
-        }
-        div[data-testid="column"] .stMarkdown.readonly {
-            font-size: 20px !important;
-            padding: 10px !important;
-            border: 2px solid #E5E7EB !important; /* gris-200 */
-            border-radius: 8px !important;
-            background-color: #F8FAFC !important; /* slate-50 */
-            color: #111827 !important;
-            margin-bottom: 10px !important;
-            text-align: center !important;
-        }
-        div.stButton > button {
-            font-size: 20px !important;
-            padding: 10px !important;
-            border: 2px solid #1E3A8A !important; /* azul-800 */
-            border-radius: 8px !important;
-            background-color: #1D4ED8 !important; /* azul-600 */
-            color: #ffffff !important;
-            width: 100% !important;
-            transition: all 0.3s ease !important;
-        }
-        div.stButton > button:hover {
-            background-color: #1E40AF !important; /* azul-700 */
-            color: #ffffff !important;
-            border-color: #1E40AF !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 0 4px 8px rgba(17,24,39,0.15) !important;
-        }
-        div.stButton > button:active {
-            transform: translateY(0) !important;
-            box-shadow: 0 2px 4px rgba(17,24,39,0.12) !important;
-        }
-        div[data-testid="stSelectbox"] select {
             font-size: 20px !important;
             padding: 10px !important;
             border: 2px solid #1D4ED8 !important;
@@ -201,218 +156,221 @@ def mostrar_indicadores():
             color: #111827 !important;
             width: 100% !important;
         }
-        div[data-testid="stSelectbox"] option {
+        div[data-testid="stNumberInput"] label {
             font-size: 20px !important;
+            color: #111827 !important;
+            font-weight: bold !important;
+            text-align: center !important;
+        }
+        .readonly-box {
+            font-size: 20px !important;
+            padding: 10px !important;
+            border: 2px solid #E5E7EB !important;
+            border-radius: 8px !important;
+            background-color: #F8FAFC !important;
+            color: #111827 !important;
+            margin-bottom: 10px !important;
+            text-align: center !important;
+            font-weight: bold !important;
+        }
+        div.stButton > button {
+            font-size: 20px !important;
+            padding: 10px !important;
+            border: 2px solid #1E3A8A !important;
+            border-radius: 8px !important;
+            background-color: #1D4ED8 !important;
+            color: #ffffff !important;
+            width: 100% !important;
+            transition: all 0.3s ease !important;
+        }
+        div.stButton > button:hover {
+            background-color: #1E40AF !important;
+            border-color: #1E40AF !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 8px rgba(17,24,39,0.15) !important;
+        }
+        div[data-testid="stSelectbox"] select {
+            font-size: 20px !important;
+            padding: 10px !important;
+            border: 2px solid #1D4ED8 !important;
+            border-radius: 8px !important;
             background-color: #ffffff !important;
             color: #111827 !important;
-        }
-        div[data-testid="stSelectbox"] option:hover {
-            background-color: #1D4ED8 !important;
-            color: white !important;
         }
     </style>
     """, unsafe_allow_html=True)
 
-    # Inicializar valores en session_state si no existen
-    if "va" not in st.session_state:
-        st.session_state.va = 0.0
-    if "hce" not in st.session_state:
-        st.session_state.hce = 0.0
-    if "sce" not in st.session_state:
-        st.session_state.sce = 0.0
-    if "vaic" not in st.session_state:
-        st.session_state.vaic = 0.0
-    if "roa" not in st.session_state:
-        st.session_state.roa = 0.0
-    if "roe" not in st.session_state:
-        st.session_state.roe = 0.0
-    if "it" not in st.session_state:
-        st.session_state.it = 0.0
-    if "cv" not in st.session_state:
-        st.session_state.cv = 0.0
-    if "hc" not in st.session_state:
-        st.session_state.hc = 0.0
-    if "ce" not in st.session_state:
-        st.session_state.ce = 0.0
-    if "sector_indicadores" not in st.session_state:
-        st.session_state.sector_indicadores = "Inmobiliaria"
+    # === INICIALIZAR SESSION STATE ===
+    defaults = {
+        "it": 0.0, "cv": 0.0, "hc": 0.0, "ce": 0.0,
+        "va": 0.0, "hce": 0.0, "sce": 0.0, "vaic": 0.0,
+        "roa": 0.0, "roe": 0.0,
+        "sector_indicadores": "Inmobiliaria",
+        "calculado": False  # Bandera para saber si se presionó "Calcular"
+    }
+    for key, value in defaults.items():
+        if key not in st.session_state:
+            st.session_state[key] = value
 
-    # Selectbox para seleccionar sector
-    opciones = ["Inmobiliaria", "Primaria", "Comercial"]
-    st.session_state.sector_indicadores = st.selectbox("Selecciona un sector:", opciones)
+    # === BOTONES: Calcular y Reiniciar ===
+    col_btn1, col_btn2 = st.columns([1, 1])
+    with col_btn1:
+        if st.button("🔄 Reiniciar Todo", key="btn_reset"):
+            for key in defaults.keys():
+                st.session_state[key] = defaults[key]
+            st.success("¡Todos los valores han sido reiniciados!")
+            st.rerun()
 
-    # Botón para calcular
-    if st.button("Calcular Indicadores", key="btn_calcular"):
-        # Obtener valores de entrada
+    with col_btn2:
+        calcular = st.button("Calcular Indicadores", key="btn_calcular")
+
+    # === SELECTOR DE SECTOR ===
+    st.session_state.sector_indicadores = st.selectbox(
+        "Selecciona un sector:", 
+        ["Inmobiliaria", "Primaria", "Comercial"],
+        key="select_sector"
+    )
+
+    # === ENTRADAS DE DATOS (siempre editables) ===
+    col1, col2, col3 = st.columns([2, 3, 3])
+
+    with col2:
+        st.session_state.it = st.number_input("Ingresos Totales (IT)", min_value=0.0, value=st.session_state.it, step=0.01, format="%.2f", key="input_it")
+        st.session_state.cv = st.number_input("Costos de Ventas (CV)", min_value=0.0, value=st.session_state.cv, step=0.01, format="%.2f", key="input_cv")
+
+    with col3:
+        st.session_state.hc = st.number_input("Sueldos y Salarios (HC)", min_value=0.0, value=st.session_state.hc, step=0.01, format="%.2f", key="input_hc")
+        st.session_state.ce = st.number_input("Activos Netos (CE)", min_value=0.0, value=st.session_state.ce, step=0.01, format="%.2f", key="input_ce")
+
+    # === CÁLCULO SOLO AL PRESIONAR EL BOTÓN ===
+    if calcular:
         it = st.session_state.it
         cv = st.session_state.cv
         hc = st.session_state.hc
         ce = st.session_state.ce
-        # Cálculos
-        va_calculado = it - cv if it >= cv else 0.0
-        hce_calculado = va_calculado / hc if hc != 0 else 0.0
-        sc = va_calculado - hc if va_calculado >= hc else 0.0
-        sce_calculado = sc / va_calculado if va_calculado != 0 else 0.0
-        ice_calculado = hce_calculado + sce_calculado
-        cee_calculado = va_calculado / ce if ce != 0 else 0.0
-        vaic_calculado = ice_calculado + cee_calculado
-        # Cálculos de ROA y ROE según el sector
+
+        # Cálculos intermedios
+        va = max(it - cv, 0.0)
+        hce = va / hc if hc > 0 else 0.0
+        sc = max(va - hc, 0.0)
+        sce = sc / va if va > 0 else 0.0
+        ice = hce + sce
+        cee = va / ce if ce > 0 else 0.0
+        vaic = ice + cee
+
+        # ROA y ROE por sector
         sector = st.session_state.sector_indicadores
         if sector == "Comercial":
-            roa = 0.017000167 + 0.000090463 * ice_calculado + 0.065590993 * cee_calculado
-            roe = -0.15508027 + 0.00774242 * ice_calculado + 0.930391243 * cee_calculado
+            roa = 0.017000167 + 0.000090463 * ice + 0.065590993 * cee
+            roe = -0.15508027 + 0.00774242 * ice + 0.930391243 * cee
         elif sector == "Primaria":
-            roa = 0.027048998 - 0.004791466 * ice_calculado + 0.083361825 * cee_calculado
-            roe = 0.084135634 - 0.008724684 * ice_calculado + 0.151617468 * cee_calculado
+            roa = 0.027048998 - 0.004791466 * ice + 0.083361825 * cee
+            roe = 0.084135634 - 0.008724684 * ice + 0.151617468 * cee
         else:  # Inmobiliaria
-            roa = -0.001171129 + 0.005704393 * ice_calculado + 0.028213145 * cee_calculado
-            roe = 0.010838631 + 0.009842492 * ice_calculado + 0.069439342 * cee_calculado
+            roa = -0.001171129 + 0.005704393 * ice + 0.028213145 * cee
+            roe = 0.010838631 + 0.009842492 * ice + 0.069439342 * cee
 
-        # Actualizar session_state
-        st.session_state.va = va_calculado
-        st.session_state.hce = hce_calculado
-        st.session_state.sce = sce_calculado
-        st.session_state.vaic = vaic_calculado
+        # Actualizar resultados
+        st.session_state.va = va
+        st.session_state.hce = hce
+        st.session_state.sce = sce
+        st.session_state.vaic = vaic
         st.session_state.roa = roa
         st.session_state.roe = roe
+        st.session_state.calculado = True
 
-    # Crear 3 columnas con proporción 2:3:3
-    col1, col2, col3 = st.columns([2, 3, 3])
+        st.success("¡Cálculo realizado con éxito!")
 
-    # Columna 2: Entradas base (IT, CV)
-    with col2:
-        st.session_state.it = st.number_input("Ingresos Totales (IT)", min_value=0.0, value=st.session_state.get("it", 0.0), step=0.01, format="%.2f")
-        st.session_state.cv = st.number_input("Costos de Ventas (CV)", min_value=0.0, value=st.session_state.get("cv", 0.0), step=0.01, format="%.2f")
-       
+    # === MOSTRAR RESULTADOS SOLO SI SE CALCULÓ ===
+    if st.session_state.calculado:
+        with col1:
+            st.markdown('<span style="font-weight:bold; font-size:22px; color:#111827;">ROA:</span>', unsafe_allow_html=True)
+            st.markdown(f'<div class="readonly-box">{st.session_state.roa:.4f}</div>', unsafe_allow_html=True)
+            st.markdown('<span style="font-weight:bold; font-size:22px; color:#111827;">ROE:</span>', unsafe_allow_html=True)
+            st.markdown(f'<div class="readonly-box">{st.session_state.roe:.4f}</div>', unsafe_allow_html=True)
 
-    # Columna 3: Entrada base (CE) y (HC)
-    with col3:
-        st.session_state.hc = st.number_input("Sueldos y Salarios (HC)", min_value=0.0, value=st.session_state.get("hc", 0.0), step=0.01, format="%.2f")
-        st.session_state.ce = st.number_input("Activos Netos (CE)", min_value=0.0, value=st.session_state.get("ce", 0.0), step=0.01, format="%.2f")
-        
-    # Columna 1: Resultados no editables (ROA y ROE)
-    with col1:
-        st.markdown('<span style="font-weight:bold; font-size:22px; color:#111827;">ROA:</span>', unsafe_allow_html=True)
-        st.markdown(f'<div class="readonly" style="font-weight:bold; font-size:22px;margin-left: 1cm;"> {st.session_state.roa:.2f}</div>', unsafe_allow_html=True)
-        st.markdown('<span style="font-weight:bold; font-size:22px; color:#111827;">ROE:</span>', unsafe_allow_html=True)
-        st.markdown(f'<div class="readonly" style="font-weight:bold; font-size:22px;margin-left: 1cm;"> {st.session_state.roe:.2f}</div>', unsafe_allow_html=True)
+        # Resultados adicionales
+        st.markdown("---")
+        col_a, col_b = st.columns(2)
+        with col_a:
+            st.markdown(f'<div class="readonly-box">Valor Añadido (VA): {st.session_state.va:,.2f}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="readonly-box">VAIC™: {st.session_state.vaic:.4f}</div>', unsafe_allow_html=True)
+        with col_b:
+            st.markdown(f'<div class="readonly-box">HCE: {st.session_state.hce:.4f}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="readonly-box">SCE: {st.session_state.sce:.4f}</div>', unsafe_allow_html=True)
+        st.markdown("---")
 
-    
-    # Mostrar resultados adicionales
-    st.markdown("---")
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown(f'<div class="readonly">Valor Añadido (VA): {st.session_state.va:.2f}</div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="readonly">Índice de Valor Añadido Intelectual (VAIC™): {st.session_state.vaic:.2f}</div>', unsafe_allow_html=True)
-        
-    with col2:
-        st.markdown(f'<div class="readonly">Eficiencia Capital Estructural (SCE): {st.session_state.sce:.2f}</div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="readonly">Eficiencia Capital Humano (HCE): {st.session_state.hce:.2f}</div>', unsafe_allow_html=True)
-    st.markdown("---")
-    
-    # Recalcular ICE y CEE para el punto (basado en los valores actuales)
-    it = st.session_state.it
-    cv = st.session_state.cv
-    hc = st.session_state.hc
-    ce = st.session_state.ce
-    va_calculado = it - cv if it >= cv else 0.0
-    hce_calculado = va_calculado / hc if hc != 0 else 0.0
-    sc = va_calculado - hc if va_calculado >= hc else 0.0
-    sce_calculado = sc / va_calculado if va_calculado != 0 else 0.0
-    ice_calculado = hce_calculado + sce_calculado
-    cee_calculado = va_calculado / ce if ce != 0 else 0.0
+        # === GRÁFICAS ===
+        st.markdown("### Visualización de Resultados")
 
-    # === GRÁFICAS LIMPIAS: SOLO TUS RESULTADOS (SIN REFERENCIAS) ===
-    st.markdown("---")
-    st.markdown("### Visualización de Resultados")
+        cee = st.session_state.va / st.session_state.ce if st.session_state.ce > 0 else 0.0
+        max_val = max(cee, st.session_state.hce, st.session_state.sce, st.session_state.vaic, 1) + 0.5
 
-   
+        # Radar
+        fig_radar = go.Figure()
+        fig_radar.add_trace(go.Scatterpolar(
+            r=[cee, st.session_state.hce, st.session_state.sce, st.session_state.vaic],
+            theta=['CEE', 'HCE', 'SCE', 'VAIC™'],
+            fill='toself',
+            name='Resultados',
+            line_color='#1D4ED8',
+            fillcolor='rgba(29, 78, 216, 0.25)'
+        ))
+        fig_radar.update_layout(
+            polar=dict(radialaxis=dict(visible=True, range=[0, max_val])),
+            showlegend=False,
+            title="Perfil VAIC™ - Capital Intelectual",
+            height=480,
+            font=dict(size=14)
+        )
 
-    # --- Recalcular CEE para usar en gráficos ---
-    cee_actual = st.session_state.va / st.session_state.ce if st.session_state.ce != 0 else 0.0
+        # Barras ROA/ROE
+        fig_bar = go.Figure()
+        fig_bar.add_trace(go.Bar(
+            y=['ROA', 'ROE'],
+            x=[st.session_state.roa, st.session_state.roe],
+            orientation='h',
+            marker_color=['#1D4ED8', '#DC2626'],
+            text=[f"{st.session_state.roa:.4f}", f"{st.session_state.roe:.4f}"],
+            textposition='outside',
+            textfont=dict(size=16, color='#111827'),
+            hovertemplate='<b>%{y}</b>: %{x:.4f}<extra></extra>'
+        ))
+        fig_bar.update_layout(
+            title="ROA y ROE Calculados",
+            xaxis_title="Valor",
+            height=350,
+            showlegend=False,
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            font=dict(size=14)
+        )
 
-    # --- 1. Radar Chart: Perfil VAIC™ (solo tus valores) ---
-    fig_radar = go.Figure()
+        col_g1, col_g2 = st.columns(2)
+        with col_g1:
+            st.plotly_chart(fig_radar, use_container_width=True)
+        with col_g2:
+            st.plotly_chart(fig_bar, use_container_width=True)
 
-    fig_radar.add_trace(go.Scatterpolar(
-        r=[cee_actual, st.session_state.hce, st.session_state.sce, st.session_state.vaic],
-        theta=['CEE', 'HCE', 'SCE', 'VAIC™'],
-        fill='toself',
-        name='Resultados Calculados',
-        line_color='#1D4ED8',
-        fillcolor='rgba(29, 78, 216, 0.25)'
-    ))
+        # === TABLA RESUMEN ===
+        st.markdown("### Resumen de Indicadores")
+        resumen_df = pd.DataFrame({
+            "Indicador": ["Valor Añadido (VA)", "HCE", "SCE", "CEE", "VAIC™", "ROA", "ROE"],
+            "Valor Calculado": [
+                f"{st.session_state.va:,.2f}",
+                f"{st.session_state.hce:.4f}",
+                f"{st.session_state.sce:.4f}",
+                f"{cee:.4f}",
+                f"{st.session_state.vaic:.4f}",
+                f"{st.session_state.roa:.4f}",
+                f"{st.session_state.roe:.4f}"
+            ]
+        })
+        st.dataframe(resumen_df, use_container_width=True, hide_index=True)
 
-    fig_radar.update_layout(
-        polar=dict(
-            radialaxis=dict(
-                visible=True,
-                range=[0, max(cee_actual, st.session_state.hce, st.session_state.sce, st.session_state.vaic) + 0.5]
-            )
-        ),
-        showlegend=False,
-        title="Perfil VAIC™ - Capital Intelectual",
-        height=480,
-        font=dict(size=14)
-    )
-
-    # --- 2. Barras horizontales limpias: ROA y ROE ---
-    fig_bar = go.Figure()
-
-    fig_bar.add_trace(go.Bar(
-        y=['ROA', 'ROE'],
-        x=[st.session_state.roa, st.session_state.roe],
-        orientation='h',
-        marker_color=['#1D4ED8', '#DC2626'],
-        text=[f"{st.session_state.roa:.4f}", f"{st.session_state.roe:.4f}"],
-        textposition='outside',
-        textfont=dict(size=16, color='#111827'),
-        hovertemplate='<b>%{y}</b>: %{x:.4f}<extra></extra>'
-    ))
-
-    fig_bar.update_layout(
-        title="ROA y ROE Calculados",
-        xaxis_title="Valor",
-        height=350,
-        showlegend=False,
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(size=14)
-    )
-
-    # --- Mostrar ambas gráficas lado a lado ---
-    col1, col2 = st.columns(2)
-    with col1:
-        st.plotly_chart(fig_radar, use_container_width=True)
-    with col2:
-        st.plotly_chart(fig_bar, use_container_width=True)
-
-    # --- Tabla resumen FINAL (solo tus cálculos, sin referencias) ---
-    st.markdown("### Resumen de Indicadores")
-    resumen_df = pd.DataFrame({
-        "Indicador": ["Valor Añadido (VA)", "Eficiencia Capital Humano (HCE)", 
-                      "Eficiencia Capital Estructural (SCE)", "Eficiencia Capital Empleado (CEE)", 
-                      "VAIC™", "ROA", "ROE"],
-        "Valor Calculado": [
-            f"{st.session_state.va:,.2f}",
-            f"{st.session_state.hce:.4f}",
-            f"{st.session_state.sce:.4f}",
-            f"{cee_actual:.4f}",
-            f"{st.session_state.vaic:.4f}",
-            f"{st.session_state.roa:.4f}",
-            f"{st.session_state.roe:.4f}"
-        ]
-    })
-
-    st.dataframe(
-        resumen_df,
-        use_container_width=True,
-        hide_index=True,
-        column_config={
-            "Indicador": st.column_config.Column(width="medium"),
-            "Valor Calculado": st.column_config.Column(width="medium")
-        }
-    )
+    else:
+        # Mensaje inicial
+        st.info("👈 Ingresa los valores y presiona **'Calcular Indicadores'** para ver los resultados.")
     
     
 def mostrar_exportacion():
