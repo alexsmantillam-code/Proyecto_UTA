@@ -141,10 +141,14 @@ def mostrar_inicio():
     st.info("💡 “El conocimiento se ha convertido en el activo más valioso de la economía actual.” — Stewart, 1997")
 
 
+import streamlit as st
+import plotly.graph_objects as go
+import pandas as pd
+
 def mostrar_indicadores():
     st.title("📊 Indicadores calculados")
     
-    # CSS mejorado
+    # === CSS ===
     st.markdown("""
     <style>
         div[data-testid="stNumberInput"] input {
@@ -201,55 +205,56 @@ def mostrar_indicadores():
     """, unsafe_allow_html=True)
 
     # === INICIALIZAR SESSION STATE ===
-    defaults = {
-        "it": 0.0, "cv": 0.0, "hc": 0.0, "ce": 0.0,
-        "va": 0.0, "hce": 0.0, "sce": 0.0, "vaic": 0.0,
-        "roa": 0.0, "roe": 0.0,
-        "sector_indicadores": "Inmobiliaria",
-        "calculado": False  # Bandera para saber si se presionó "Calcular"
-    }
-    for key, value in defaults.items():
-        if key not in st.session_state:
-            st.session_state[key] = value
+    if "initialized" not in st.session_state:
+        st.session_state.update({
+            "it": 0.0, "cv": 0.0, "hc": 0.0, "ce": 0.0,
+            "va": 0.0, "hce": 0.0, "sce": 0.0, "vaic": 0.0,
+            "roa": 0.0, "roe": 0.0,
+            "sector_indicadores": "Inmobiliaria",
+            "calculado": False,
+            "initialized": True
+        })
 
-    # === BOTONES: Calcular y Reiniciar ===
+    # === BOTONES ===
     col_btn1, col_btn2 = st.columns([1, 1])
     with col_btn1:
-        if st.button("🔄 Reiniciar Todo", key="btn_reset"):
-            for key in defaults.keys():
-                st.session_state[key] = defaults[key]
-            st.success("¡Todos los valores han sido reiniciados!")
-            st.rerun()
+        if st.button("🔄 Reiniciar Todo", key="btn_reset_full"):
+            # Limpiar TODO el session_state
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.success("¡Todos los campos han sido borrados!")
+            st.rerun()  # Forzar recarga completa
 
     with col_btn2:
         calcular = st.button("Calcular Indicadores", key="btn_calcular")
 
     # === SELECTOR DE SECTOR ===
+    sector_default = st.session_state.get("sector_indicadores", "Inmobiliaria")
     st.session_state.sector_indicadores = st.selectbox(
         "Selecciona un sector:", 
         ["Inmobiliaria", "Primaria", "Comercial"],
+        index=["Inmobiliaria", "Primaria", "Comercial"].index(sector_default),
         key="select_sector"
     )
 
-    # === ENTRADAS DE DATOS (siempre editables) ===
+    # === ENTRADAS DE DATOS (SIN value= para evitar mantener datos) ===
     col1, col2, col3 = st.columns([2, 3, 3])
 
     with col2:
-        st.session_state.it = st.number_input("Ingresos Totales (IT)", min_value=0.0, value=st.session_state.it, step=0.01, format="%.2f", key="input_it")
-        st.session_state.cv = st.number_input("Costos de Ventas (CV)", min_value=0.0, value=st.session_state.cv, step=0.01, format="%.2f", key="input_cv")
-
+        it = st.number_input("Ingresos Totales (IT)", min_value=0.0, step=0.01, format="%.2f", key="input_it")
+        cv = st.number_input("Costos de Ventas (CV)", min_value=0.0, step=0.01, format="%.2f", key="input_cv")
     with col3:
-        st.session_state.hc = st.number_input("Sueldos y Salarios (HC)", min_value=0.0, value=st.session_state.hc, step=0.01, format="%.2f", key="input_hc")
-        st.session_state.ce = st.number_input("Activos Netos (CE)", min_value=0.0, value=st.session_state.ce, step=0.01, format="%.2f", key="input_ce")
+        hc = st.number_input("Sueldos y Salarios (HC)", min_value=0.0, step=0.01, format="%.2f", key="input_hc")
+        ce = st.number_input("Activos Netos (CE)", min_value=0.0, step=0.01, format="%.2f", key="input_ce")
 
-    # === CÁLCULO SOLO AL PRESIONAR EL BOTÓN ===
+    # Guardar en session_state solo si cambian
+    st.session_state.it = it
+    st.session_state.cv = cv
+    st.session_state.hc = hc
+    st.session_state.ce = ce
+
+    # === CÁLCULO AL PRESIONAR BOTÓN ===
     if calcular:
-        it = st.session_state.it
-        cv = st.session_state.cv
-        hc = st.session_state.hc
-        ce = st.session_state.ce
-
-        # Cálculos intermedios
         va = max(it - cv, 0.0)
         hce = va / hc if hc > 0 else 0.0
         sc = max(va - hc, 0.0)
@@ -258,7 +263,6 @@ def mostrar_indicadores():
         cee = va / ce if ce > 0 else 0.0
         vaic = ice + cee
 
-        # ROA y ROE por sector
         sector = st.session_state.sector_indicadores
         if sector == "Comercial":
             roa = 0.017000167 + 0.000090463 * ice + 0.065590993 * cee
@@ -270,26 +274,21 @@ def mostrar_indicadores():
             roa = -0.001171129 + 0.005704393 * ice + 0.028213145 * cee
             roe = 0.010838631 + 0.009842492 * ice + 0.069439342 * cee
 
-        # Actualizar resultados
-        st.session_state.va = va
-        st.session_state.hce = hce
-        st.session_state.sce = sce
-        st.session_state.vaic = vaic
-        st.session_state.roa = roa
-        st.session_state.roe = roe
-        st.session_state.calculado = True
+        # Guardar resultados
+        st.session_state.update({
+            "va": va, "hce": hce, "sce": sce, "vaic": vaic,
+            "roa": roa, "roe": roe, "calculado": True
+        })
+        st.success("¡Cálculo realizado!")
 
-        st.success("¡Cálculo realizado con éxito!")
-
-    # === MOSTRAR RESULTADOS SOLO SI SE CALCULÓ ===
-    if st.session_state.calculado:
+    # === MOSTRAR RESULTADOS ===
+    if st.session_state.get("calculado", False):
         with col1:
             st.markdown('<span style="font-weight:bold; font-size:22px; color:#111827;">ROA:</span>', unsafe_allow_html=True)
             st.markdown(f'<div class="readonly-box">{st.session_state.roa:.4f}</div>', unsafe_allow_html=True)
             st.markdown('<span style="font-weight:bold; font-size:22px; color:#111827;">ROE:</span>', unsafe_allow_html=True)
             st.markdown(f'<div class="readonly-box">{st.session_state.roe:.4f}</div>', unsafe_allow_html=True)
 
-        # Resultados adicionales
         st.markdown("---")
         col_a, col_b = st.columns(2)
         with col_a:
@@ -302,76 +301,50 @@ def mostrar_indicadores():
 
         # === GRÁFICAS ===
         st.markdown("### Visualización de Resultados")
-
         cee = st.session_state.va / st.session_state.ce if st.session_state.ce > 0 else 0.0
         max_val = max(cee, st.session_state.hce, st.session_state.sce, st.session_state.vaic, 1) + 0.5
 
-        # Radar
         fig_radar = go.Figure()
         fig_radar.add_trace(go.Scatterpolar(
             r=[cee, st.session_state.hce, st.session_state.sce, st.session_state.vaic],
             theta=['CEE', 'HCE', 'SCE', 'VAIC™'],
             fill='toself',
-            name='Resultados',
             line_color='#1D4ED8',
             fillcolor='rgba(29, 78, 216, 0.25)'
         ))
         fig_radar.update_layout(
             polar=dict(radialaxis=dict(visible=True, range=[0, max_val])),
-            showlegend=False,
-            title="Perfil VAIC™ - Capital Intelectual",
-            height=480,
-            font=dict(size=14)
+            showlegend=False, title="Perfil VAIC™", height=480, font=dict(size=14)
         )
 
-        # Barras ROA/ROE
         fig_bar = go.Figure()
         fig_bar.add_trace(go.Bar(
-            y=['ROA', 'ROE'],
-            x=[st.session_state.roa, st.session_state.roe],
-            orientation='h',
-            marker_color=['#1D4ED8', '#DC2626'],
+            y=['ROA', 'ROE'], x=[st.session_state.roa, st.session_state.roe],
+            orientation='h', marker_color=['#1D4ED8', '#DC2626'],
             text=[f"{st.session_state.roa:.4f}", f"{st.session_state.roe:.4f}"],
-            textposition='outside',
-            textfont=dict(size=16, color='#111827'),
-            hovertemplate='<b>%{y}</b>: %{x:.4f}<extra></extra>'
+            textposition='outside', textfont=dict(size=16)
         ))
-        fig_bar.update_layout(
-            title="ROA y ROE Calculados",
-            xaxis_title="Valor",
-            height=350,
-            showlegend=False,
-            plot_bgcolor='rgba(0,0,0,0)',
-            paper_bgcolor='rgba(0,0,0,0)',
-            font=dict(size=14)
-        )
+        fig_bar.update_layout(title="ROA y ROE", xaxis_title="Valor", height=350, showlegend=False)
 
         col_g1, col_g2 = st.columns(2)
-        with col_g1:
-            st.plotly_chart(fig_radar, use_container_width=True)
-        with col_g2:
-            st.plotly_chart(fig_bar, use_container_width=True)
+        with col_g1: st.plotly_chart(fig_radar, use_container_width=True)
+        with col_g2: st.plotly_chart(fig_bar, use_container_width=True)
 
-        # === TABLA RESUMEN ===
-        st.markdown("### Resumen de Indicadores")
+        # === TABLA ===
+        st.markdown("### Resumen")
         resumen_df = pd.DataFrame({
-            "Indicador": ["Valor Añadido (VA)", "HCE", "SCE", "CEE", "VAIC™", "ROA", "ROE"],
-            "Valor Calculado": [
-                f"{st.session_state.va:,.2f}",
-                f"{st.session_state.hce:.4f}",
-                f"{st.session_state.sce:.4f}",
-                f"{cee:.4f}",
-                f"{st.session_state.vaic:.4f}",
-                f"{st.session_state.roa:.4f}",
+            "Indicador": ["VA", "HCE", "SCE", "CEE", "VAIC™", "ROA", "ROE"],
+            "Valor": [
+                f"{st.session_state.va:,.2f}", f"{st.session_state.hce:.4f}",
+                f"{st.session_state.sce:.4f}", f"{cee:.4f}",
+                f"{st.session_state.vaic:.4f}", f"{st.session_state.roa:.4f}",
                 f"{st.session_state.roe:.4f}"
             ]
         })
         st.dataframe(resumen_df, use_container_width=True, hide_index=True)
 
     else:
-        # Mensaje inicial
-        st.info("👈 Ingresa los valores y presiona **'Calcular Indicadores'** para ver los resultados.")
-    
+        st.info("👈 Ingresa los valores y presiona **'Calcular Indicadores'**.")
     
 def mostrar_exportacion():
     st.title("Exportar resultados en PDF")
