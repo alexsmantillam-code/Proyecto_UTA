@@ -8,6 +8,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
 import io
 import plotly.graph_objects as go
+from datetime import datetime
 
 st.set_page_config(page_title="Plataforma de Indicadores Intangibles y Rentabilidad", layout="wide")
 if "pagina" not in st.session_state:
@@ -16,11 +17,10 @@ if "pagina" not in st.session_state:
 def cambiar_pagina(pagina):
     st.session_state.pagina = pagina
 
-# --- NUEVO: Solo efectos de animación (CSS) ---
+# --- ANIMACIONES CSS ---
 def aplicar_animaciones_css():
     st.markdown("""
     <style>
-    /* ===================== Animaciones globales ===================== */
     @keyframes fadeInUp {
         from {opacity: 0; transform: translate3d(0, 12px, 0);}
         to {opacity: 1; transform: translate3d(0, 0, 0);}
@@ -31,71 +31,37 @@ def aplicar_animaciones_css():
         100% { transform: translateY(0px); }
     }
     @keyframes pulseRing {
-        0% { box-shadow: 0 0 0 0 rgba(29,78,216,.35); } /* azul-700 */
+        0% { box-shadow: 0 0 0 0 rgba(29,78,216,.35); }
         70% { box-shadow: 0 0 0 12px rgba(29,78,216,0); }
         100% { box-shadow: 0 0 0 0 rgba(29,78,216,0); }
     }
-
-    /* Contenedor principal entra suavemente */
     .block-container { animation: fadeInUp .6s ease both; }
-
-    /* Imagen del sidebar con flotación sutil (si existiera) */
-    [data-testid="stSidebar"] img { animation: floaty 4s ease-in-out infinite; }
-
-    /* Título principal (tu h1 con estilo inline) también se anima */
     div.stMarkdown h1 { animation: fadeInUp .8s ease both; }
-
-    /* Tarjetas/alertas y bloques aparecen con fadeInUp */
-    .stAlert, .stMarkdown, .stPlotlyChart, .element-container { animation: fadeInUp .6s ease both; }
-
-    /* Campos numéricos y select con focus suave (azul corporativo) */
-    div[data-testid="stNumberInput"] input, div[data-testid="stSelectbox"] select {
-        transition: box-shadow .25s ease, transform .12s ease;
-    }
-    div[data-testid="stNumberInput"] input:focus, div[data-testid="stSelectbox"] select:focus {
-        box-shadow: 0 0 0 3px rgba(29,78,216,.25); /* azul-700 */
+    .stAlert, .stMarkdown, .stPlotlyChart { animation: fadeInUp .6s ease both; }
+    div[data-testid="stNumberInput"] input:focus {
+        box-shadow: 0 0 0 3px rgba(29,78,216,.25);
         transform: translateY(-1px);
     }
-
-    /* Tus cajas de resultados .readonly con animación */
     .readonly { animation: fadeInUp .7s ease both; }
-
-    /* Botones: sin cambiar lógica, solo animación y sombra corporativa */
-    div.stButton > button {
-        transition: transform .15s ease, box-shadow .25s ease;
-    }
     div.stButton > button:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(17,24,39,.15); /* gris-900 */
+        box-shadow: 0 6px 16px rgba(17,24,39,.15);
     }
-    div.stButton > button:active {
-        transform: translateY(0);
-        animation: pulseRing .9s ease;
-    }
-
-    /* Gráficos Plotly con animación de entrada */
-    .stPlotlyChart { animation-delay: .05s; }
-
-    /* Ligeras demoras para columnas (efecto cascada) */
-    div[data-testid="column"]:nth-child(1) { animation-delay: 0.05s; }
-    div[data-testid="column"]:nth-child(2) { animation-delay: 0.10s; }
-    div[data-testid="column"]:nth-child(3) { animation-delay: 0.15s; }
-    div[data-testid="column"]:nth-child(4) { animation-delay: 0.20s; }
     </style>
     """, unsafe_allow_html=True)
 
 def mostrar_inicio():   
-    # Crear columnas para imagen y texto principal
     col1, col2 = st.columns([1, 2])
-
     with col1:
-        img = Image.open("UTA.png")
-        st.image(img, width=250)
-
+        try:
+            img = Image.open("UTA.png")
+            st.image(img, width=250)
+        except:
+            st.warning("Logo UTA no encontrado.")
     with col2:
         st.markdown("""
         <h1 style='font-size: 32px; color: #1f2937;'>
-            📊 Plataforma de Indicadores Intangibles y Rentabilidad
+            Plataforma de Indicadores Intangibles y Rentabilidad
         </h1>
         <p style='font-size: 18px; color:#374151;'>
             <strong>Proyecto de investigación:</strong> 
@@ -103,7 +69,6 @@ def mostrar_inicio():
         </p>
         """, unsafe_allow_html=True)
 
-    # Texto introductorio
     st.markdown("""
     <p style='font-size:16px; text-align: justify; color:#374151;'>
     Esta aplicación permite calcular automáticamente los principales indicadores relacionados con el capital intelectual y la rentabilidad de las empresas ecuatorianas que cotizan en bolsa. 
@@ -111,44 +76,36 @@ def mostrar_inicio():
     </p>
     """, unsafe_allow_html=True)
 
-    # Indicadores
     col3, col4 = st.columns(2)
-
     with col3:
         st.markdown("""
-        #### 📌 Indicadores de Capital Intelectual:
-        - 🧠 Valor Añadido (VA)  
-        - 👥 Eficiencia del Capital Humano (HCE)  
-        - 🏢 Eficiencia del Capital Estructural (SCE)  
+        #### Indicadores de Capital Intelectual:
+        - Valor Añadido (VA)  
+        - Eficiencia del Capital Humano (HCE)  
+        - Eficiencia del Capital Estructural (SCE)  
         """)
-
     with col4:
         st.markdown("""
-        #### 📌 Indicadores de Rentabilidad:
-        - 📈 Índice de Valor Añadido Intelectual (VAIC™)  
-        - 💹 Rentabilidad sobre Activos (ROA)  
-        - 💰 Rentabilidad sobre el Patrimonio (ROE)  
+        #### Indicadores de Rentabilidad:
+        - Índice de Valor Añadido Intelectual (VAIC™)  
+        - Rentabilidad sobre Activos (ROA)  
+        - Rentabilidad sobre el Patrimonio (ROE)  
         """)
 
-    # Cierre
     st.markdown("""
     <p style='font-size:16px; color:#374151;'>
     Además, podrás visualizar resultados y exportarlos fácilmente.
     </p>
     """, unsafe_allow_html=True)
+    st.info("“El conocimiento se ha convertido en el activo más valioso de la economía actual.” — Stewart, 1997")
 
-    # Frase inspiradora
-    st.info("💡 “El conocimiento se ha convertido en el activo más valioso de la economía actual.” — Stewart, 1997")
-
-
-import streamlit as st
-import plotly.graph_objects as go
-import pandas as pd
-
+# ==============================================
+# === FUNCIÓN INDICADORES (CON BOTÓN REINICIAR) ===
+# ==============================================
 def mostrar_indicadores():
-    st.title("📊 Indicadores calculados")
+    st.title("Indicadores calculados")
     
-    # === CSS ===
+    # === CSS LOCAL ===
     st.markdown("""
     <style>
         div[data-testid="stNumberInput"] input {
@@ -166,7 +123,7 @@ def mostrar_indicadores():
             font-weight: bold !important;
             text-align: center !important;
         }
-        .readonly-box {
+        div[data-testid="column"] .stMarkdown.readonly {
             font-size: 20px !important;
             padding: 10px !important;
             border: 2px solid #E5E7EB !important;
@@ -175,7 +132,6 @@ def mostrar_indicadores():
             color: #111827 !important;
             margin-bottom: 10px !important;
             text-align: center !important;
-            font-weight: bold !important;
         }
         div.stButton > button {
             font-size: 20px !important;
@@ -189,9 +145,14 @@ def mostrar_indicadores():
         }
         div.stButton > button:hover {
             background-color: #1E40AF !important;
+            color: #ffffff !important;
             border-color: #1E40AF !important;
             transform: translateY(-2px) !important;
             box-shadow: 0 4px 8px rgba(17,24,39,0.15) !important;
+        }
+        div.stButton > button:active {
+            transform: translateY(0) !important;
+            box-shadow: 0 2px 4px rgba(17,24,39,0.12) !important;
         }
         div[data-testid="stSelectbox"] select {
             font-size: 20px !important;
@@ -200,156 +161,140 @@ def mostrar_indicadores():
             border-radius: 8px !important;
             background-color: #ffffff !important;
             color: #111827 !important;
+            width: 100% !important;
         }
     </style>
     """, unsafe_allow_html=True)
 
-    # === INICIALIZAR SESSION STATE ===
-    if "initialized" not in st.session_state:
-        st.session_state.update({
-            "it": 0.0, "cv": 0.0, "hc": 0.0, "ce": 0.0,
-            "va": 0.0, "hce": 0.0, "sce": 0.0, "vaic": 0.0,
-            "roa": 0.0, "roe": 0.0,
-            "sector_indicadores": "Inmobiliaria",
-            "calculado": False,
-            "initialized": True
-        })
+    # === INICIALIZAR VARIABLES ===
+    keys = ["va", "hce", "sce", "vaic", "roa", "roe", "it", "cv", "hc", "ce", "sector_indicadores"]
+    defaults = {
+        "va": 0.0, "hce": 0.0, "sce": 0.0, "vaic": 0.0, "roa": 0.0, "roe": 0.0,
+        "it": 0.0, "cv": 0.0, "hc": 0.0, "ce": 0.0, "sector_indicadores": "Inmobiliaria"
+    }
+    for k in keys:
+        if k not in st.session_state:
+            st.session_state[k] = defaults[k]
 
-    # === BOTONES ===
+    # === BOTONES: REINICIAR + CALCULAR ===
     col_btn1, col_btn2 = st.columns([1, 1])
     with col_btn1:
-        if st.button("🔄 Reiniciar Todo", key="btn_reset_full"):
-            # Limpiar TODO el session_state
-            for key in list(st.session_state.keys()):
-                del st.session_state[key]
-            st.success("¡Todos los campos han sido borrados!")
-            st.rerun()  # Forzar recarga completa
+        if st.button("Reiniciar Todo", key="btn_reset"):
+            for k in keys:
+                st.session_state[k] = defaults[k]
+            st.success("¡Campos reiniciados! Listo para nuevo cálculo.")
+            st.rerun()
 
     with col_btn2:
         calcular = st.button("Calcular Indicadores", key="btn_calcular")
 
     # === SELECTOR DE SECTOR ===
-    sector_default = st.session_state.get("sector_indicadores", "Inmobiliaria")
-    st.session_state.sector_indicadores = st.selectbox(
-        "Selecciona un sector:", 
-        ["Inmobiliaria", "Primaria", "Comercial"],
-        index=["Inmobiliaria", "Primaria", "Comercial"].index(sector_default),
-        key="select_sector"
-    )
+    opciones = ["Inmobiliaria", "Primaria", "Comercial"]
+    st.session_state.sector_indicadores = st.selectbox("Selecciona un sector:", opciones, key="select_sector")
 
-    # === ENTRADAS DE DATOS (SIN value= para evitar mantener datos) ===
-    col1, col2, col3 = st.columns([2, 3, 3])
-
+    # === ENTRADAS ===
+    col1, col2, col3 =  st.columns([2, 3, 3])
     with col2:
-        it = st.number_input("Ingresos Totales (IT)", min_value=0.0, step=0.01, format="%.2f", key="input_it")
-        cv = st.number_input("Costos de Ventas (CV)", min_value=0.0, step=0.01, format="%.2f", key="input_cv")
+        st.session_state.it = st.number_input("Ingresos Totales (IT)", min_value=0.0, value=st.session_state.it, step=0.01, format="%.2f", key="input_it")
+        st.session_state.cv = st.number_input("Costos de Ventas (CV)", min_value=0.0, value=st.session_state.cv, step=0.01, format="%.2f", key="input_cv")
     with col3:
-        hc = st.number_input("Sueldos y Salarios (HC)", min_value=0.0, step=0.01, format="%.2f", key="input_hc")
-        ce = st.number_input("Activos Netos (CE)", min_value=0.0, step=0.01, format="%.2f", key="input_ce")
+        st.session_state.hc = st.number_input("Sueldos y Salarios (HC)", min_value=0.0, value=st.session_state.hc, step=0.01, format="%.2f", key="input_hc")
+        st.session_state.ce = st.number_input("Activos Netos (CE)", min_value=0.0, value=st.session_state.ce, step=0.01, format="%.2f", key="input_ce")
 
-    # Guardar en session_state solo si cambian
-    st.session_state.it = it
-    st.session_state.cv = cv
-    st.session_state.hc = hc
-    st.session_state.ce = ce
-
-    # === CÁLCULO AL PRESIONAR BOTÓN ===
+    # === CÁLCULO ===
     if calcular:
-        va = max(it - cv, 0.0)
-        hce = va / hc if hc > 0 else 0.0
-        sc = max(va - hc, 0.0)
-        sce = sc / va if va > 0 else 0.0
-        ice = hce + sce
-        cee = va / ce if ce > 0 else 0.0
-        vaic = ice + cee
+        it = st.session_state.it
+        cv = st.session_state.cv
+        hc = st.session_state.hc
+        ce = st.session_state.ce
+
+        va_calculado = max(it - cv, 0.0)
+        hce_calculado = va_calculado / hc if hc != 0 else 0.0
+        sc = max(va_calculado - hc, 0.0)
+        sce_calculado = sc / va_calculado if va_calculado != 0 else 0.0
+        ice_calculado = hce_calculado + sce_calculado
+        cee_calculado = va_calculado / ce if ce != 0 else 0.0
+        vaic_calculado = ice_calculado + cee_calculado
 
         sector = st.session_state.sector_indicadores
         if sector == "Comercial":
-            roa = 0.017000167 + 0.000090463 * ice + 0.065590993 * cee
-            roe = -0.15508027 + 0.00774242 * ice + 0.930391243 * cee
+            roa = 0.017000167 + 0.000090463 * ice_calculado + 0.065590993 * cee_calculado
+            roe = -0.15508027 + 0.00774242 * ice_calculado + 0.930391243 * cee_calculado
         elif sector == "Primaria":
-            roa = 0.027048998 - 0.004791466 * ice + 0.083361825 * cee
-            roe = 0.084135634 - 0.008724684 * ice + 0.151617468 * cee
-        else:  # Inmobiliaria
-            roa = -0.001171129 + 0.005704393 * ice + 0.028213145 * cee
-            roe = 0.010838631 + 0.009842492 * ice + 0.069439342 * cee
+            roa = 0.027048998 - 0.004791466 * ice_calculado + 0.083361825 * cee_calculado
+            roe = 0.084135634 - 0.008724684 * ice_calculado + 0.151617468 * cee_calculado
+        else:
+            roa = -0.001171129 + 0.005704393 * ice_calculado + 0.028213145 * cee_calculado
+            roe = 0.010838631 + 0.009842492 * ice_calculado + 0.069439342 * cee_calculado
 
-        # Guardar resultados
         st.session_state.update({
-            "va": va, "hce": hce, "sce": sce, "vaic": vaic,
-            "roa": roa, "roe": roe, "calculado": True
+            "va": va_calculado, "hce": hce_calculado, "sce": sce_calculado,
+            "vaic": vaic_calculado, "roa": roa, "roe": roe
         })
         st.success("¡Cálculo realizado!")
 
-    # === MOSTRAR RESULTADOS ===
-    if st.session_state.get("calculado", False):
-        with col1:
-            st.markdown('<span style="font-weight:bold; font-size:22px; color:#111827;">ROA:</span>', unsafe_allow_html=True)
-            st.markdown(f'<div class="readonly-box">{st.session_state.roa:.4f}</div>', unsafe_allow_html=True)
-            st.markdown('<span style="font-weight:bold; font-size:22px; color:#111827;">ROE:</span>', unsafe_allow_html=True)
-            st.markdown(f'<div class="readonly-box">{st.session_state.roe:.4f}</div>', unsafe_allow_html=True)
+    # === RESULTADOS ===
+    with col1:
+        st.markdown('<span style="font-weight:bold; font-size:22px; color:#111827;">ROA:</span>', unsafe_allow_html=True)
+        st.markdown(f'<div class="readonly" style="font-weight:bold; font-size:22px;margin-left: 1cm;"> {st.session_state.roa:.4f}</div>', unsafe_allow_html=True)
+        st.markdown('<span style="font-weight:bold; font-size:22px; color:#111827;">ROE:</span>', unsafe_allow_html=True)
+        st.markdown(f'<div class="readonly" style="font-weight:bold; font-size:22px;margin-left: 1cm;"> {st.session_state.roe:.4f}</div>', unsafe_allow_html=True)
 
-        st.markdown("---")
-        col_a, col_b = st.columns(2)
-        with col_a:
-            st.markdown(f'<div class="readonly-box">Valor Añadido (VA): {st.session_state.va:,.2f}</div>', unsafe_allow_html=True)
-            st.markdown(f'<div class="readonly-box">VAIC™: {st.session_state.vaic:.4f}</div>', unsafe_allow_html=True)
-        with col_b:
-            st.markdown(f'<div class="readonly-box">HCE: {st.session_state.hce:.4f}</div>', unsafe_allow_html=True)
-            st.markdown(f'<div class="readonly-box">SCE: {st.session_state.sce:.4f}</div>', unsafe_allow_html=True)
-        st.markdown("---")
+    st.markdown("---")
+    col_a, col_b = st.columns(2)
+    with col_a:
+        st.markdown(f'<div class="readonly">Valor Añadido (VA): {st.session_state.va:,.2f}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="readonly">VAIC™: {st.session_state.vaic:.4f}</div>', unsafe_allow_html=True)
+    with col_b:
+        st.markdown(f'<div class="readonly">HCE: {st.session_state.hce:.4f}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="readonly">SCE: {st.session_state.sce:.4f}</div>', unsafe_allow_html=True)
+    st.markdown("---")
 
-        # === GRÁFICAS ===
-        st.markdown("### Visualización de Resultados")
-        cee = st.session_state.va / st.session_state.ce if st.session_state.ce > 0 else 0.0
-        max_val = max(cee, st.session_state.hce, st.session_state.sce, st.session_state.vaic, 1) + 0.5
+    # === GRÁFICAS ===
+    st.markdown("### Visualización de Resultados")
+    cee_actual = st.session_state.va / st.session_state.ce if st.session_state.ce != 0 else 0.0
 
-        fig_radar = go.Figure()
-        fig_radar.add_trace(go.Scatterpolar(
-            r=[cee, st.session_state.hce, st.session_state.sce, st.session_state.vaic],
-            theta=['CEE', 'HCE', 'SCE', 'VAIC™'],
-            fill='toself',
-            line_color='#1D4ED8',
-            fillcolor='rgba(29, 78, 216, 0.25)'
-        ))
-        fig_radar.update_layout(
-            polar=dict(radialaxis=dict(visible=True, range=[0, max_val])),
-            showlegend=False, title="Perfil VAIC™", height=480, font=dict(size=14)
-        )
+    fig_radar = go.Figure()
+    fig_radar.add_trace(go.Scatterpolar(
+        r=[cee_actual, st.session_state.hce, st.session_state.sce, st.session_state.vaic],
+        theta=['CEE', 'HCE', 'SCE', 'VAIC™'],
+        fill='toself',
+        line_color='#1D4ED8',
+        fillcolor='rgba(29, 78, 216, 0.25)'
+    ))
+    fig_radar.update_layout(
+        polar=dict(radialaxis=dict(visible=True, range=[0, max(cee_actual, st.session_state.hce, st.session_state.sce, st.session_state.vaic, 1) + 0.5])),
+        showlegend=False, title="Perfil VAIC™", height=480
+    )
 
-        fig_bar = go.Figure()
-        fig_bar.add_trace(go.Bar(
-            y=['ROA', 'ROE'], x=[st.session_state.roa, st.session_state.roe],
-            orientation='h', marker_color=['#1D4ED8', '#DC2626'],
-            text=[f"{st.session_state.roa:.4f}", f"{st.session_state.roe:.4f}"],
-            textposition='outside', textfont=dict(size=16)
-        ))
-        fig_bar.update_layout(title="ROA y ROE", xaxis_title="Valor", height=350, showlegend=False)
+    fig_bar = go.Figure()
+    fig_bar.add_trace(go.Bar(
+        y=['ROA', 'ROE'], x=[st.session_state.roa, st.session_state.roe],
+        orientation='h', marker_color=['#1D4ED8', '#DC2626'],
+        text=[f"{st.session_state.roa:.4f}", f"{st.session_state.roe:.4f}"], textposition='outside'
+    ))
+    fig_bar.update_layout(title="ROA y ROE", height=350, showlegend=False)
 
-        col_g1, col_g2 = st.columns(2)
-        with col_g1: st.plotly_chart(fig_radar, use_container_width=True)
-        with col_g2: st.plotly_chart(fig_bar, use_container_width=True)
+    col_g1, col_g2 = st.columns(2)
+    with col_g1: st.plotly_chart(fig_radar, use_container_width=True)
+    with col_g2: st.plotly_chart(fig_bar, use_container_width=True)
 
-        # === TABLA ===
-        st.markdown("### Resumen")
-        resumen_df = pd.DataFrame({
-            "Indicador": ["VA", "HCE", "SCE", "CEE", "VAIC™", "ROA", "ROE"],
-            "Valor": [
-                f"{st.session_state.va:,.2f}", f"{st.session_state.hce:.4f}",
-                f"{st.session_state.sce:.4f}", f"{cee:.4f}",
-                f"{st.session_state.vaic:.4f}", f"{st.session_state.roa:.4f}",
-                f"{st.session_state.roe:.4f}"
-            ]
-        })
-        st.dataframe(resumen_df, use_container_width=True, hide_index=True)
+    # === TABLA ===
+    st.markdown("### Resumen")
+    resumen_df = pd.DataFrame({
+        "Indicador": ["VA", "HCE", "SCE", "CEE", "VAIC™", "ROA", "ROE"],
+        "Valor": [
+            f"{st.session_state.va:,.2f}", f"{st.session_state.hce:.4f}",
+            f"{st.session_state.sce:.4f}", f"{cee_actual:.4f}",
+            f"{st.session_state.vaic:.4f}", f"{st.session_state.roa:.4f}",
+            f"{st.session_state.roe:.4f}"
+        ]
+    })
+    st.dataframe(resumen_df, use_container_width=True, hide_index=True)
 
-    else:
-        st.info("👈 Ingresa los valores y presiona **'Calcular Indicadores'**.")
-    
+# === LAS DEMÁS FUNCIONES QUEDAN IGUALES ===
 def mostrar_exportacion():
     st.title("Exportar resultados en PDF")
-
-    # CSS para botón bonito
     st.markdown("""
     <style>
         div.stButton > button {
@@ -368,7 +313,6 @@ def mostrar_exportacion():
         st.warning("Por favor, calcula los indicadores primero en la página de Indicadores.")
         return
 
-    # Mostrar resumen rápido
     st.markdown("### Resultados Calculados")
     col1, col2 = st.columns(2)
     with col1:
@@ -384,48 +328,32 @@ def mostrar_exportacion():
         buffer = io.BytesIO()
         c = canvas.Canvas(buffer, pagesize=letter)
         width, height = letter
-
-        # === ENCABEZADO PROFESIONAL ===
-        c.setFillColorRGB(120/255, 31/255, 25/255)  # Rojo UTA
+        c.setFillColorRGB(120/255, 31/255, 25/255)
         c.rect(0, height - 100, width, 100, fill=1)
-        
         try:
-            logo = Image.open("UTA.png")
-            logo_width = 80
-            c.drawImage("UTA.png", 50, height - 110, width=logo_width, preserveAspectRatio=True)
-        except:
-            pass  # Si no encuentra la imagen, sigue sin ella
-
-        c.setFillColorRGB(1, 1, 1)  # Blanco
+            c.drawImage("UTA.png", 50, height - 110, width=80, preserveAspectRatio=True)
+        except: pass
+        c.setFillColorRGB(1, 1, 1)
         c.setFont("Helvetica-Bold", 20)
         c.drawCentredString(width / 2, height - 60, " INDICADORES INTANGIBLES")
         c.setFont("Helvetica", 14)
         c.drawCentredString(width / 2, height - 85, "Universidad Técnica de Ambato | Ecuador")
-
-        # Línea decorativa
         c.setStrokeColorRGB(0.9, 0.9, 0.9)
         c.setLineWidth(3)
         c.line(50, height - 105, width - 50, height - 105)
-
-        # === CONTENIDO ===
         y = height - 140
         c.setFillColorRGB(0, 0, 0)
         c.setFont("Helvetica-Bold", 16)
         c.drawString(70, y, "Resultados del Análisis VAIC™ y Rentabilidad")
         y -= 30
-
         c.setFont("Helvetica", 12)
         c.drawString(70, y, f"Sector seleccionado: {st.session_state.sector_indicadores}")
         y -= 25
-        from datetime import datetime
         c.drawString(70, y, f"Fecha de generación: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
         y -= 40
-
-        # === TABLA DE RESULTADOS ===
         c.setFont("Helvetica-Bold", 12)
         c.drawString(70, y, "Indicadores Calculados:")
         y -= 20
-
         datos = [
             ["Valor Añadido (VA)", f"${st.session_state.va:,.2f}"],
             ["Eficiencia Capital Humano (HCE)", f"{st.session_state.hce:.4f}"],
@@ -435,7 +363,6 @@ def mostrar_exportacion():
             ["ROA", f"{st.session_state.roa:.4f}"],
             ["ROE", f"{st.session_state.roe:.4f}"]
         ]
-
         c.setFont("Helvetica", 11)
         for label, valor in datos:
             c.drawString(90, y, f"• {label}:")
@@ -443,69 +370,41 @@ def mostrar_exportacion():
             c.drawString(300, y, valor)
             c.setFont("Helvetica", 11)
             y -= 20
-
         y -= 30
-
-        # === GRÁFICAS EN EL PDF ===
         try:
-            # Recalcular CEE
             cee_actual = st.session_state.va / st.session_state.ce if st.session_state.ce != 0 else 0.0
-
-            # 1. Radar Chart
             fig_radar = go.Figure()
             fig_radar.add_trace(go.Scatterpolar(
                 r=[cee_actual, st.session_state.hce, st.session_state.sce, st.session_state.vaic],
                 theta=['CEE', 'HCE', 'SCE', 'VAIC™'],
-                fill='toself',
-                line_color="#D8491D",
-                fillcolor='rgba(29, 78, 216, 0.25)'
+                fill='toself', line_color="#D8491D", fillcolor='rgba(29, 78, 216, 0.25)'
             ))
-            fig_radar.update_layout(
-                polar=dict(radialaxis=dict(visible=True)),
-                showlegend=False,
-                title="Perfil VAIC™ - Capital Intelectual",
-                height=400, width=550
-            )
+            fig_radar.update_layout(polar=dict(radialaxis=dict(visible=True)), showlegend=False, height=400, width=550)
             radar_img = io.BytesIO()
             fig_radar.write_image(radar_img, format="png")
             radar_img.seek(0)
             c.drawImage(radar_img, 40, y - 320, width=500, height=300)
-
-            # 2. Barras ROA y ROE
             fig_bar = go.Figure()
             fig_bar.add_trace(go.Bar(
-                y=['ROA', 'ROE'],
-                x=[st.session_state.roa, st.session_state.roe],
-                orientation='h',
-                marker_color=['#1D4ED8', '#DC2626'],
-                text=[f"{st.session_state.roa:.4f}", f"{st.session_state.roe:.4f}"],
-                textposition='outside'
+                y=['ROA', 'ROE'], x=[st.session_state.roa, st.session_state.roe],
+                orientation='h', marker_color=['#1D4ED8', '#DC2626'],
+                text=[f"{st.session_state.roa:.4f}", f"{st.session_state.roe:.4f}"], textposition='outside'
             ))
-            fig_bar.update_layout(
-                title="ROA y ROE Calculados",
-                height=300, width=500,
-                margin=dict(l=50, r=50, t=50, b=50)
-            )
+            fig_bar.update_layout(title="ROA y ROE Calculados", height=300, width=500, margin=dict(l=50, r=50, t=50, b=50))
             bar_img = io.BytesIO()
             fig_bar.write_image(bar_img, format="png")
             bar_img.seek(0)
             c.drawImage(bar_img, 40, y - 650, width=500, height=250)
-
         except Exception as e:
             c.setFont("Helvetica", 10)
             c.drawString(70, y - 400, f"Advertencia: No se pudieron generar las gráficas: {str(e)}")
-
-        # === PIE DE PÁGINA ===
         c.setFillColorRGB(120/255, 31/255, 25/255)
         c.rect(0, 0, width, 70, fill=1)
         c.setFillColorRGB(1, 1, 1)
         c.setFont("Helvetica-Bold", 12)
         c.drawCentredString(width / 2, 35, "Proyecto de Investigación - Universidad Técnica de Ambato")
-        
-
         c.save()
         buffer.seek(0)
-
         st.success("¡PDF generado con éxito!")
         st.download_button(
             label="Descargar Reporte Completo (PDF)",
@@ -514,8 +413,6 @@ def mostrar_exportacion():
             mime="application/pdf",
             use_container_width=True
         )
-
-
 
 def mostrar_ayuda():
    
@@ -660,61 +557,42 @@ def mostrar_ayuda():
         )
     st.markdown('---')
 
-
-
-
+# === MAIN ===
 def main():
-    aplicar_animaciones_css()  # <-- NUEVO: solo agrega animaciones (no cambia lógica)
-    # CSS corporativo para botones (manteniendo tamaños/estructura que ya tenías)
+    aplicar_animaciones_css()
     st.markdown("""
     <style>
-        /* Botones con paleta empresarial */
         div.stButton > button {
-            font-size: 50px !important;
-            height: 80px !important;
-            padding: 15px 20px !important;
+            font-size: 18px !important;
+            height: 60px !important;
+            padding: 10px !important;
             font-weight: bold !important;
             border-radius: 12px !important;
-            border: 2px solid #1E3A8A !important;  /* azul-800 */
-            background-color: #1D4ED8 !important;   /* azul-600 */
+            border: 2px solid #1E3A8A !important;
+            background-color: #1D4ED8 !important;
             color: #ffffff !important;
-            transition: all 0.3s ease !important;
         }
-        
         div.stButton > button:hover {
-            background-color: #1E40AF !important;   /* azul-700 */
-            color: #ffffff !important;
-            border-color: #1E40AF !important;
+            background-color: #1E40AF !important;
             transform: translateY(-2px) !important;
-            box-shadow: 0 4px 8px rgba(17,24,39,0.15) !important;
-        }
-        
-        div.stButton > button:active {
-            transform: translateY(0) !important;
-            box-shadow: 0 2px 4px rgba(17,24,39,0.12) !important;
+            box-shadow: 0 4px 12px rgba(29,78,216,0.3) !important;
         }
     </style>
     """, unsafe_allow_html=True)
 
-    # Resto del código igual
     col1, col2, col3, col4 = st.columns(4)
-
     with col1:
-        if st.button("🏠 Inicio", use_container_width=True, key="btn_inicio"):
+        if st.button("Inicio", use_container_width=True, key="btn_inicio"):
             cambiar_pagina("inicio")
-
     with col2:
-        if st.button("📊 Indicadores", use_container_width=True, key="btn_indicadores"):
+        if st.button("Indicadores", use_container_width=True, key="btn_indicadores"):
             cambiar_pagina("indicadores")
-
     with col3:
-        if st.button("📤 Exportar", use_container_width=True, key="btn_exportar"):
+        if st.button("Exportar", use_container_width=True, key="btn_exportar"):
             cambiar_pagina("exportar")
-    
     with col4:
-        if st.button("🆘 Ayuda", use_container_width=True, key="btn_ayuda"):
+        if st.button("Ayuda", use_container_width=True, key="btn_ayuda"):
             cambiar_pagina("ayuda")
-                  
     st.markdown("---")
     if st.session_state.pagina == "inicio":
         mostrar_inicio()
@@ -724,14 +602,7 @@ def main():
         mostrar_exportacion()
     elif st.session_state.pagina == "ayuda":
         mostrar_ayuda()
-
-st.markdown("""
-    <style>
-    .stApp {
-        background-color: #F5F7FB; /* fondo claro corporativo */
-    }
-    </style>
-""", unsafe_allow_html=True)    
+    st.markdown("<style>.stApp { background-color: #F8FAFC; }</style>", unsafe_allow_html=True)
 
 if __name__ == '__main__':
     main()
