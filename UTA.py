@@ -170,7 +170,7 @@ def mostrar_indicadores():
     keys = ["va", "hce", "sce", "vaic", "roa", "roe", "it", "cv", "hc", "ce", "sector_indicadores"]
     defaults = {
         "va": 0.0, "hce": 0.0, "sce": 0.0, "vaic": 0.0, "roa": 0.0, "roe": 0.0,
-        "it": 0.0, "cv": 0.0, "hc": 0.0, "ce": 0.0, "sector_indicadores": "Inmobiliaria"
+        "it": 0.0, "cv": 0.0, "hc": 0.0, "ce": 0.0, "sector_indicadores": "Inmobiliario"
     }
     for k in keys:
         if k not in st.session_state:
@@ -615,6 +615,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
