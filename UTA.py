@@ -176,6 +176,7 @@ def mostrar_indicadores():
         if k not in st.session_state:
             st.session_state[k] = defaults[k]
 
+    
     # === BOTONES: REINICIAR + CALCULAR ===
     col_btn1, col_btn2 = st.columns([1, 1])
     with col_btn1:
@@ -183,7 +184,8 @@ def mostrar_indicadores():
             for k in keys:
                 st.session_state[k] = defaults[k]
             st.success("¡Campos reiniciados! Listo para nuevo cálculo.")
-            st.rerun()
+            # Eliminar st.rerun() - Streamlit actualiza automáticamente
+   
 
     with col_btn2:
         calcular = st.button("Calcular Indicadores", key="btn_calcular")
@@ -606,4 +608,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
