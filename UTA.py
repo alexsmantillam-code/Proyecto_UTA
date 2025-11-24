@@ -194,15 +194,48 @@ def mostrar_indicadores():
     opciones = ["Inmobiliario", "Primario", "Comercial"]
     st.session_state.sector_indicadores = st.selectbox("Selecciona un sector:", opciones, key="select_sector")
 
-    # === ENTRADAS ===
-    col1, col2, col3 =  st.columns([2, 3, 3])
-    with col2:
-        st.session_state.it = st.number_input("Ingresos Totales (IT)", min_value=0.0, value=st.session_state.it, step=0.01, format="%.2f", key="input_it")
-        st.session_state.cv = st.number_input("Costos de Ventas (CV)", min_value=0.0, value=st.session_state.cv, step=0.01, format="%.2f", key="input_cv")
-    with col3:
-        st.session_state.hc = st.number_input("Sueldos y Salarios (HC)", min_value=0.0, value=st.session_state.hc, step=0.01, format="%.2f", key="input_hc")
-        st.session_state.ce = st.number_input("Activos Netos (CE)", min_value=0.0, value=st.session_state.ce, step=0.01, format="%.2f", key="input_ce")
+    # === INICIALIZAR VARIABLES ===
+    keys = ["va", "hce", "sce", "vaic", "roa", "roe", "it", "cv", "hc", "ce", "sector_indicadores"]
+    defaults = {
+        "va": 0.0, "hce": 0.0, "sce": 0.0, "vaic": 0.0, "roa": 0.0, "roe": 0.0,
+        "it": 0.0, "cv": 0.0, "hc": 0.0, "ce": 0.0, "sector_indicadores": "Inmobiliaria"
+    }
+    for k in keys:
+        if k not in st.session_state:
+            st.session_state[k] = defaults[k]
 
+    # === BOTONES: REINICIAR + CALCULAR ===
+    col_btn1, col_btn2 = st.columns([1, 1])
+    with col_btn1:
+        if st.button("Reiniciar Todo", key="btn_reset"):
+            for k in keys:
+                st.session_state[k] = defaults[k]
+            st.success("¡Campos reiniciados! Listo para nuevo cálculo.")
+            # st.rerun()  # Elimina esta línea
+
+    with col_btn2:
+        calcular = st.button("Calcular Indicadores", key="btn_calcular")
+
+    # === SELECTOR DE SECTOR ===
+    opciones = ["Inmobiliaria", "Primaria", "Comercial"]
+    st.session_state.sector_indicadores = st.selectbox("Selecciona un sector:", opciones, index=opciones.index(st.session_state.sector_indicadores))
+
+    # === ENTRADAS ===
+    col1, col2, col3 = st.columns([2, 3, 3])
+    with col2:
+        # Usar keys diferentes para los inputs o eliminar las keys
+        it_input = st.number_input("Ingresos Totales (IT)", min_value=0.0, value=st.session_state.it, step=0.01, format="%.2f")
+        st.session_state.it = it_input
+        
+        cv_input = st.number_input("Costos de Ventas (CV)", min_value=0.0, value=st.session_state.cv, step=0.01, format="%.2f")
+        st.session_state.cv = cv_input
+
+    with col3:
+        hc_input = st.number_input("Sueldos y Salarios (HC)", min_value=0.0, value=st.session_state.hc, step=0.01, format="%.2f")
+        st.session_state.hc = hc_input
+        
+        ce_input = st.number_input("Activos Netos (CE)", min_value=0.0, value=st.session_state.ce, step=0.01, format="%.2f")
+        st.session_state.ce = ce_input
     # === CÁLCULO ===
     if calcular:
         it = st.session_state.it
@@ -608,5 +641,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
