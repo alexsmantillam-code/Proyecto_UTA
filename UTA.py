@@ -165,35 +165,7 @@ def mostrar_indicadores():
         }
     </style>
     """, unsafe_allow_html=True)
-
-    # === INICIALIZAR VARIABLES ===
-    keys = ["va", "hce", "sce", "vaic", "roa", "roe", "it", "cv", "hc", "ce", "sector_indicadores"]
-    defaults = {
-        "va": 0.0, "hce": 0.0, "sce": 0.0, "vaic": 0.0, "roa": 0.0, "roe": 0.0,
-        "it": 0.0, "cv": 0.0, "hc": 0.0, "ce": 0.0, "sector_indicadores": "Inmobiliaria"
-    }
-    for k in keys:
-        if k not in st.session_state:
-            st.session_state[k] = defaults[k]
-
-    
-    # === BOTONES: REINICIAR + CALCULAR ===
-    col_btn1, col_btn2 = st.columns([1, 1])
-    with col_btn1:
-        if st.button("Reiniciar Todo", key="btn_reset"):
-            for k in keys:
-                st.session_state[k] = defaults[k]
-            st.success("¡Campos reiniciados! Listo para nuevo cálculo.")
-            # Eliminar st.rerun() - Streamlit actualiza automáticamente
-   
-
-    with col_btn2:
-        calcular = st.button("Calcular Indicadores", key="btn_calcular")
-
-    # === SELECTOR DE SECTOR ===
-    opciones = ["Inmobiliario", "Primario", "Comercial"]
-    st.session_state.sector_indicadores = st.selectbox("Selecciona un sector:", opciones, key="select_sector")
-
+        
     # === INICIALIZAR VARIABLES ===
     keys = ["va", "hce", "sce", "vaic", "roa", "roe", "it", "cv", "hc", "ce", "sector_indicadores"]
     defaults = {
@@ -235,7 +207,9 @@ def mostrar_indicadores():
         st.session_state.hc = hc_input
         
         ce_input = st.number_input("Activos Netos (CE)", min_value=0.0, value=st.session_state.ce, step=0.01, format="%.2f")
-        st.session_state.ce = ce_input
+        st.session_state.ce = ce_input    
+    
+            
     # === CÁLCULO ===
     if calcular:
         it = st.session_state.it
