@@ -189,7 +189,7 @@ def mostrar_indicadores():
         calcular = st.button("Calcular Indicadores", key="btn_calcular")
 
     # === SELECTOR DE SECTOR ===
-    opciones = ["Inmobiliaria", "Primaria", "Comercial"]
+    opciones = ["Inmobiliario", "Primario", "Comercial"]
     st.session_state.sector_indicadores = st.selectbox("Selecciona un sector:", opciones, key="select_sector")
 
     # === ENTRADAS ===
@@ -606,3 +606,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
