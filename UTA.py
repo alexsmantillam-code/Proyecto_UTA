@@ -206,7 +206,7 @@ def mostrar_indicadores():
         hc_input = st.number_input("Sueldos y Salarios (HC)", min_value=0.0, value=st.session_state.hc, step=0.01, format="%.2f")
         st.session_state.hc = hc_input
         
-        ce_input = st.number_input("Activos Netos (CE)", min_value=0.0, value=st.session_state.ce, step=0.01, format="%.2f")
+        ce_input = st.number_input("Activo Total (CE)", min_value=0.0, value=st.session_state.ce, step=0.01, format="%.2f")
         st.session_state.ce = ce_input    
     
             
@@ -615,6 +615,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
